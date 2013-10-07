@@ -1,6 +1,7 @@
 package mvc;
 
 import io.FileHandlerTexmaker;
+import io.FileHandlerTexstudio;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,10 +27,14 @@ public class Controller implements ActionListener, ListSelectionListener, ListDa
 	
 	private View view;
 	private ExportStyle exportStyle;
+	private final FileHandlerTexmaker texmaker;
+	private final FileHandlerTexstudio texstudio;
 	
 	public Controller() {
 		this.view = new View(this);
 		this.exportStyle = Controller.ExportStyle.TEXMAKER;
+		this.texmaker = new FileHandlerTexmaker();
+		this.texstudio = new FileHandlerTexstudio();
 	}
 	
 	public View getView() {
@@ -93,38 +98,33 @@ public class Controller implements ActionListener, ListSelectionListener, ListDa
 				}
 			} else {
 				/* user aborted action - do nothing */
-				new AddCommandDialog(this.view, new ArrayList<String>());
 			}
 		} else if (actionCommand == View.SAVE_NAME) {
-			switch (this.exportStyle) {
-			case TEXMAKER:
-				File file = this.view.createSaveFileDialog();
-				if (file != null) {
-					if (file.exists()) {
-						if (file.canWrite()) {
-							System.out.println(file.getAbsolutePath());
-							try {
-								FileHandlerTexmaker texmaker = new FileHandlerTexmaker();
-								texmaker.writeFile(file, this.view.getCommands());
-							} catch (IOException ioe) {
-								ioe.printStackTrace();
+			File file = this.view.createSaveFileDialog();
+			if (file != null) {
+				if (file.exists()) {
+					if (file.canWrite()) {
+						System.out.println(file.getAbsolutePath());
+						try {
+							switch (this.exportStyle) {
+							case TEXMAKER:
+								this.texmaker.writeFile(file, this.view.getCommands());
+							case TEXSTUDIO:
+								this.texstudio.writeFile(file, this.view.getCommands());
+							default:
+								System.err.println("Unsupported Option");
 							}
-						} else {
-							System.err.println("No write permissions for this file or directory");
+						} catch (IOException ioe) {
+							ioe.printStackTrace();
 						}
 					} else {
-						System.err.println("This file does not seem to exist");
+						System.err.println("No write permissions for this file or directory");
 					}
 				} else {
-					// user aborted action - do nothing
+					System.err.println("This file does not seem to exist");
 				}
-				break;
-			case TEXSTUDIO:
-				System.out.println("Not implemented yet");
-				break;
-			default:
-				System.err.println("Unsupported Option");
-				break;
+			} else {
+				// user aborted action - do nothing
 			}
 		} else if (actionCommand == View.QUIT_NAME) {
 			this.view.setVisible(false);

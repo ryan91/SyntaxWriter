@@ -11,7 +11,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Locale;
 
+import javax.net.ssl.ExtendedSSLSession;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -109,21 +111,15 @@ public class View extends JFrame {
 		
 		// TODO set initial directory
 		this.fileChooser = new JFileChooser();
-		FileNameExtensionFilter iniFilter = new FileNameExtensionFilter("texmaker .ini files", "INI", "ini");
-		FileNameExtensionFilter cwsFilter = new FileNameExtensionFilter("texstudio .cws files", "CWS", "cws");
-		this.fileChooser.removeChoosableFileFilter(this.fileChooser.getAcceptAllFileFilter());
+		
+		FileFilter iniFilter = new FileExtensionFilter("ini");
+		FileFilter cwsFilter = new FileExtensionFilter("cws");
+		FileFilter allFiles = new AllFilesFilter();
+		//this.fileChooser.removeChoosableFileFilter(this.fileChooser.getAcceptAllFileFilter());
+		this.fileChooser.setAcceptAllFileFilterUsed(false);
 		this.fileChooser.addChoosableFileFilter(cwsFilter);
 		this.fileChooser.addChoosableFileFilter(iniFilter);
-		this.fileChooser.addChoosableFileFilter(new FileFilter() {
-			@Override
-			public String getDescription() {
-				return "all files";
-			}			
-			@Override
-			public boolean accept(File f) {
-				return true;
-			}
-		});
+		this.fileChooser.addChoosableFileFilter(allFiles);
 		this.createLayout();
 	}
 	
@@ -293,5 +289,58 @@ public class View extends JFrame {
 				|| (!enabled && component.isEnabled())) {
 			component.setEnabled(enabled);
 		}
+	}
+	
+	class AllFilesFilter extends FileFilter {
+
+		@Override
+		public boolean accept(File f) {
+			return true;
+		}
+
+		@Override
+		public String getDescription() {
+			return this.toString();
+		}
+		
+		@Override
+		public String toString() {
+			return "all files";
+		}
+		
+	}
+	
+	class FileExtensionFilter extends FileFilter {
+		
+		private String extension;
+		
+		public FileExtensionFilter(String extension) {
+			this.extension = extension;
+		}
+		
+		@Override
+		public boolean accept(File f) {
+			String fileName = f.getName();
+			int i = fileName.lastIndexOf('.');
+			if (i > 0 && i < fileName.length() - 1) {
+				String desiredExtension = fileName.substring(i + 1)
+						.toLowerCase(Locale.ENGLISH);
+				if (desiredExtension.equals(this.extension)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		@Override
+		public String getDescription() {
+			return this.toString();
+		}
+		
+		@Override
+		public String toString() {
+			return "." + this.extension + " files";
+		}
+		
 	}
 }

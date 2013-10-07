@@ -90,13 +90,19 @@ public class View extends JFrame {
 		menuFactroy.addMenuItem("File", open);
 		menuFactroy.addMenuItem("File", saveButton);
 		menuFactroy.addSeparator("File");
+		menuFactroy.addSubMenu("File", "Export as...");
+		String[] exportStyles = new String[] {"Texmaker ini file", "Texstudio cwl file"};
+		ButtonGroup exportButtons = menuFactroy.createRadioButtonGroup(
+				exportStyles, "exportstyle", exportStyles[0], this.controller);
 		menuFactroy.addMenuItem("File", quit);
-		
+		menuFactroy.addButtonGroup("Export as...", exportButtons);
+		menuFactroy.addSeparator("File");
 		menuFactroy.addMenu("Options");
 		menuFactroy.addSubMenu("Options", "UI size");
 		
 		String[] uiSizeNames = new String[] {"Small", "Medium", "Large"};
-		ButtonGroup uiSizes= menuFactroy.createRadioButtonGroup(uiSizeNames, "uisize", uiSizeNames[0], this.controller);
+		ButtonGroup uiSizes = menuFactroy.createRadioButtonGroup(uiSizeNames,
+				"uisize", uiSizeNames[0], this.controller);
 		menuFactroy.addButtonGroup("UI size", uiSizes);
 		
 		// TODO set initial directory

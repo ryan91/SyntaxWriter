@@ -10,7 +10,6 @@ import java.awt.event.WindowListener;
 import java.awt.event.WindowStateListener;
 import java.io.File;
 import java.io.IOException;
-import java.lang.Character.Subset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,10 +25,14 @@ import javax.swing.event.ListSelectionListener;
 
 public class Controller implements ActionListener, ListSelectionListener,WindowListener, WindowStateListener, ListDataListener {
 	
+	public enum ExportStyle {TEXMAKER, TEXSTUDIO};
+	
 	private View view;
+	private ExportStyle exportStyle;
 	
 	public Controller() {
 		this.view = new View(this);
+		this.exportStyle = Controller.ExportStyle.TEXMAKER;
 	}
 	
 	public View getView() {
@@ -63,6 +66,14 @@ public class Controller implements ActionListener, ListSelectionListener,WindowL
 			} else if (whichButton.equals("Large")) {
 				this.view.resize(View.Size.LARGE);
 			}
+		} else if(actionCommand.contains("exportstyle/")) {
+			String whichButton = actionCommand.substring(
+					actionCommand.indexOf("/") + 1, actionCommand.length());
+			if (whichButton.equals("Texmaker ini file")) {
+				this.exportStyle = Controller.ExportStyle.TEXMAKER;
+			} else if (whichButton.equals("Texstudio cwl file")) {
+				this.exportStyle = Controller.ExportStyle.TEXSTUDIO;
+			}
 		} else if (actionCommand == View.OPEN_NAME) {
 			File file = this.view.createOpenFileDialog();
 			if (file != null) {
@@ -87,25 +98,35 @@ public class Controller implements ActionListener, ListSelectionListener,WindowL
 				new AddCommandDialog(this.view, new ArrayList<String>());
 			}
 		} else if (actionCommand == View.SAVE_NAME) {
-			File file = this.view.createSaveFileDialog();
-			if (file != null) {
-				if (file.exists()) {
-					if (file.canWrite()) {
-						System.out.println(file.getAbsolutePath());
-						try {
-							TexmakerIo.writeToFile(file, this.view.getCommands());
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
+			switch (this.exportStyle) {
+			case TEXMAKER:
+				File file = this.view.createSaveFileDialog();
+				if (file != null) {
+					if (file.exists()) {
+						if (file.canWrite()) {
+							System.out.println(file.getAbsolutePath());
+							try {
+								TexmakerIo.writeToFile(file, this.view.getCommands());
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						} else {
+							System.err.println("No write permissions for this file or directory");
 						}
 					} else {
-						System.err.println("No write permissions for this file or directory");
+						System.err.println("This file does not seem to exist");
 					}
 				} else {
-					System.err.println("This file does not seem to exist");
+					// user aborted action - do nothing
 				}
-			} else {
-				// user aborted action - do nothing
+				break;
+			case TEXSTUDIO:
+				System.out.println("Not implemented yet");
+				break;
+			default:
+				System.err.println("Unsupported Option");
+				break;
 			}
 		} else if (actionCommand == View.QUIT_NAME) {
 			this.view.setVisible(false);

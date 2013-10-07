@@ -1,13 +1,9 @@
 package mvc;
 
-import io.TexmakerIo;
+import io.FileHandlerTexmaker;
 
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.awt.event.WindowStateListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,15 +11,16 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-public class Controller implements ActionListener, ListSelectionListener,WindowListener, WindowStateListener, ListDataListener {
+public class Controller implements ActionListener, ListSelectionListener, ListDataListener, DocumentListener {
 	
 	public enum ExportStyle {TEXMAKER, TEXSTUDIO};
 	
@@ -80,7 +77,8 @@ public class Controller implements ActionListener, ListSelectionListener,WindowL
 				if (file.exists()) {
 					if (file.canRead()) {
 						try {
-							List<String> existingCommands = TexmakerIo.getExistingCommands(file);
+							FileHandlerTexmaker texmaker = new FileHandlerTexmaker();
+							List<String> existingCommands = texmaker.readFile(file);
 							Collections.sort(existingCommands);
 							new AddCommandDialog(this.view, existingCommands);
 						} catch (IOException e1) {
@@ -106,10 +104,10 @@ public class Controller implements ActionListener, ListSelectionListener,WindowL
 						if (file.canWrite()) {
 							System.out.println(file.getAbsolutePath());
 							try {
-								TexmakerIo.writeToFile(file, this.view.getCommands());
-							} catch (IOException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
+								FileHandlerTexmaker texmaker = new FileHandlerTexmaker();
+								texmaker.writeFile(file, this.view.getCommands());
+							} catch (IOException ioe) {
+								ioe.printStackTrace();
 							}
 						} else {
 							System.err.println("No write permissions for this file or directory");
@@ -153,72 +151,46 @@ public class Controller implements ActionListener, ListSelectionListener,WindowL
 			}
 		});
 	}
-
-	@Override
-	public void windowStateChanged(WindowEvent e) {
-		if (e.getNewState() == Frame.MAXIMIZED_BOTH) {
-			System.out.println("HELLLO");
-			JFrame frame = (JFrame) e.getWindow();
-			System.out.println(frame.getWidth());
-			System.out.println(frame.getHeight());
-		}
-	}
-
-	@Override
-	public void windowOpened(WindowEvent e) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void windowClosing(WindowEvent e) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void windowClosed(WindowEvent e) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void windowIconified(WindowEvent e) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void windowDeiconified(WindowEvent e) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void windowActivated(WindowEvent e) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void windowDeactivated(WindowEvent e) {
-		// TODO Auto-generated method stub
-	}
 	
 	// ---------------------------------------------
 	// below ListDataListener
 	@Override
 	public void intervalAdded(ListDataEvent e) {
 		/* do nothing */
-		this.view.enableSaveButton(true);
+		this.view.setSaveButtonEnabled(true);
 	}
 
 	@Override
 	public void intervalRemoved(ListDataEvent e) {
 		final DefaultListModel<?> listModel = (DefaultListModel<?>) e.getSource();
 		if (listModel.size() == 0) {
-			this.view.enableSaveButton(false);
+			this.view.setSaveButtonEnabled(false);
 		} else {
-			this.view.enableSaveButton(true);
+			this.view.setSaveButtonEnabled(true);
 		}
 	}
 
 	@Override
 	public void contentsChanged(ListDataEvent e) {
+		/* do nothing */
+	}
+	
+	// ----------------------------------------------
+	// below DocumentListener
+	@Override
+	public void insertUpdate(DocumentEvent e) {
+		this.view.setAddButtonEnabled(true);
+	}
+
+	@Override
+	public void removeUpdate(DocumentEvent e) {
+		if (e.getDocument().getLength() <= 0) {
+			this.view.setAddButtonEnabled(false);
+		}
+	}
+
+	@Override
+	public void changedUpdate(DocumentEvent e) {
 		/* do nothing */
 	}
 }

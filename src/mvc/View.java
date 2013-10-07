@@ -15,6 +15,7 @@ import java.util.List;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -72,6 +73,7 @@ public class View extends JFrame {
 		this.add = new JButton(View.ADD_NAME);
 		this.add.setActionCommand(View.ADD_NAME);
 		this.add.addActionListener(this.controller);
+		this.add.setEnabled(false);
 		this.commandModel = new DefaultListModel<String>();
 		this.list = new JList<String>(this.commandModel);
 		this.list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -79,7 +81,7 @@ public class View extends JFrame {
 		this.scrollPane = new JScrollPane(this.list);
 		this.commandModel.addListDataListener(this.controller);
 		this.nameField = new JTextField();
-		
+		this.nameField.getDocument().addDocumentListener(this.controller);
 		this.menuFactroy = new MenuFactroy();
 		
 		menuFactroy.addMenu("File");
@@ -158,6 +160,7 @@ public class View extends JFrame {
 	//	return this.uiSizes.getSelection().getActionCommand();
 	//}
 	
+	
 	public void addCommand(String command) {
 		this.commandModel.addElement(command);
 	}
@@ -223,8 +226,6 @@ public class View extends JFrame {
 		
 		this.add(vertical);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.addWindowListener(this.controller);
-		this.addWindowStateListener(this.controller);
 		this.resize(View.Size.SMALL);
 	}
 	
@@ -278,12 +279,19 @@ public class View extends JFrame {
 			System.err.println("Could not load GKT framework. Going to exit");
 		}
 	}
-
-	public void enableSaveButton(boolean enabled) {
-		if (enabled && !this.saveButton.isEnabled()) {
-			this.saveButton.setEnabled(enabled);
-		} else if (!enabled && this.saveButton.isEnabled()) {
-			this.saveButton.setEnabled(enabled);
+	
+	public void setAddButtonEnabled(boolean enabled) {
+		this.enableButton(this.add, enabled);
+	}
+	
+	public void setSaveButtonEnabled(boolean enabled) {
+		this.enableButton(this.saveButton, enabled);
+	}
+	
+	private void enableButton(JComponent component, boolean enabled) {
+		if ((enabled && !component.isEnabled())
+				|| (!enabled && component.isEnabled())) {
+			component.setEnabled(enabled);
 		}
 	}
 }

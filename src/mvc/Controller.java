@@ -57,11 +57,11 @@ public class Controller implements ActionListener, ListSelectionListener,WindowL
 			String whichButton = actionCommand.substring(
 					actionCommand.indexOf('/') + 1, actionCommand.length());
 			if (whichButton.equals("Small")) {
-				System.out.println("small...");
+				this.view.resize(View.Size.SMALL);
 			} else if (whichButton.equals("Medium")) {
-				System.out.println("medium...");
+				this.view.resize(View.Size.MEDIUM);
 			} else if (whichButton.equals("Large")) {
-				System.out.println("large...");
+				this.view.resize(View.Size.LARGE);
 			}
 		} else if (actionCommand == View.OPEN_NAME) {
 			File file = this.view.createOpenFileDialog();
@@ -121,7 +121,7 @@ public class Controller implements ActionListener, ListSelectionListener,WindowL
 	private static void launchApplication() {
 		Controller controller = new Controller();
 		View.setLookAndFeel();
-		controller.getView().createLayout();
+		controller.getView().showGui();
 	}
 	
 	public static void main(String[] args) {

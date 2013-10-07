@@ -42,14 +42,14 @@ public class View extends JFrame {
 	public static final String SAVE_NAME = "save";
 	public static final String QUIT_NAME = "quit";
 	
-	private static final int TEXTFIELD_WIDTH = 25;
-	
-	private int textFieldWidth = 350;
-	private int textFieldHeight = 150;
+	private int textFieldWidth;
+	private int textAreaWidth;
+	private int textAreaHeight;
 	
 	private final JMenuItem saveButton;
 	
 	private final JList<String> list;
+	private final JScrollPane scrollPane;
 	private final DefaultListModel<String> commandModel;
 	
 	private final JButton remove;
@@ -76,8 +76,9 @@ public class View extends JFrame {
 		this.list = new JList<String>(this.commandModel);
 		this.list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		this.list.addListSelectionListener(this.controller);
+		this.scrollPane = new JScrollPane(this.list);
 		this.commandModel.addListDataListener(this.controller);
-		this.nameField = new JTextField(View.TEXTFIELD_WIDTH);
+		this.nameField = new JTextField();
 		
 		this.menuFactroy = new MenuFactroy();
 		
@@ -115,33 +116,36 @@ public class View extends JFrame {
 				return true;
 			}
 		});
+		this.createLayout();
 	}
 	
 	public void resize(Size size) {
-		/* TODO implement resizing */
-		switch (size) {
-		case SMALL:
-			break;
-		case MEDIUM:
-			break;
-		case LARGE:
-			break;
-		}
+		this.calcNewSize(size);
+		this.scrollPane.setPreferredSize(new Dimension(this.textAreaWidth,
+				this.textAreaHeight));
+		this.nameField.setColumns(this.textFieldWidth);
+		this.pack();
 	}
 	
 	private void calcNewSize(Size size) {
-		/* TODO implement resizing */
 		switch (size) {
 		case SMALL:
-			break;
-		case LARGE:
+			this.textAreaWidth = 350;
+			this.textFieldWidth = 25;
 			break;
 		case MEDIUM:
+			this.textAreaWidth = 500;
+			this.textFieldWidth = 35;
+			break;
+		case LARGE:
+			this.textAreaWidth = 800;
+			this.textFieldWidth = 60;
 			break;
 		default:
-			break;
-		
+			System.err.println("Unsupported option!");
+			return;
 		}
+		this.textAreaHeight = (int) (((double) this.textAreaWidth) * (3d / 7d));
 	}
 	
 	//public String getSelectedUISize() {
@@ -173,7 +177,7 @@ public class View extends JFrame {
 	}
 	
 	public Dimension getTextFieldSize() {
-		return new Dimension(this.textFieldWidth, this.textFieldHeight);
+		return new Dimension(this.textAreaWidth, this.textAreaHeight);
 	}
 	
 	public File createSaveFileDialog() {
@@ -186,7 +190,7 @@ public class View extends JFrame {
 		}
 	}
 	
-	public void createLayout() {
+	private void createLayout() {
 		this.setJMenuBar(this.menuFactroy.getMenuBar());
 		
 		JPanel vertical = new JPanel();
@@ -204,8 +208,7 @@ public class View extends JFrame {
 		JPanel removePanel = new JPanel();
 		removePanel.add(this.remove);
 		
-		JScrollPane scrollPane = new JScrollPane(this.list);
-		scrollPane.setPreferredSize(new Dimension(this.textFieldWidth, this.textFieldHeight));
+		//this.scrollPane.setPreferredSize(new Dimension(this.textAreaWidth, this.textAreaHeight));
 		vertical.add(scrollPane, c);
 		c.gridy++;
 		vertical.add(addPanel, c);
@@ -216,6 +219,10 @@ public class View extends JFrame {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.addWindowListener(this.controller);
 		this.addWindowStateListener(this.controller);
+		this.resize(View.Size.SMALL);
+	}
+	
+	public void showGui() {
 		SwingUtilities.updateComponentTreeUI(this);
 		SwingUtilities.updateComponentTreeUI(this.fileChooser);
 		this.pack();

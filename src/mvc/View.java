@@ -94,13 +94,18 @@ public class View extends JFrame {
 		menuFactroy.addMenuItem("File", open);
 		menuFactroy.addMenuItem("File", saveButton);
 		menuFactroy.addSeparator("File");
+		String[] exportStyles = new String[] { "Texmaker ini file",
+				"Texstudio cwl file" };
+		menuFactroy.addSubMenu("File", "Import from...");
+		ButtonGroup importButtons = menuFactroy.createRadioButtonGroup(
+				exportStyles, "importstyle", exportStyles[0], this.controller);
 		menuFactroy.addSubMenu("File", "Export as...");
-		String[] exportStyles = new String[] {"Texmaker ini file", "Texstudio cwl file"};
+		menuFactroy.addButtonGroup("Import from...", importButtons);
 		ButtonGroup exportButtons = menuFactroy.createRadioButtonGroup(
 				exportStyles, "exportstyle", exportStyles[0], this.controller);
-		menuFactroy.addMenuItem("File", quit);
 		menuFactroy.addButtonGroup("Export as...", exportButtons);
 		menuFactroy.addSeparator("File");
+		menuFactroy.addMenuItem("File", quit);
 		menuFactroy.addMenu("Options");
 		menuFactroy.addSubMenu("Options", "UI size");
 		
@@ -113,7 +118,7 @@ public class View extends JFrame {
 		this.fileChooser = new JFileChooser();
 		
 		FileFilter iniFilter = new FileExtensionFilter("ini");
-		FileFilter cwsFilter = new FileExtensionFilter("cws");
+		FileFilter cwsFilter = new FileExtensionFilter("cwl");
 		FileFilter allFiles = new AllFilesFilter();
 		//this.fileChooser.removeChoosableFileFilter(this.fileChooser.getAcceptAllFileFilter());
 		this.fileChooser.setAcceptAllFileFilterUsed(false);

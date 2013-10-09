@@ -17,7 +17,7 @@ public abstract class AbstractFileHandler implements IFileHandler {
 	protected BufferedWriter out;
 	
 	protected abstract void handleReadProcess(final String line, final List<String> commands);
-	protected abstract void handleWriteProcess(final List<String> commands, final BufferedWriter out);	
+	protected abstract void handleWriteProcess(final List<String> commands, final BufferedWriter out) throws IOException;	
 	protected abstract StringBuffer createFileContentManually(final File file, final List<String> commands) throws IOException;
 	
 	public AbstractFileHandler() {

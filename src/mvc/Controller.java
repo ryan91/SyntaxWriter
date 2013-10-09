@@ -24,15 +24,18 @@ import javax.swing.event.ListSelectionListener;
 public class Controller implements ActionListener, ListSelectionListener, ListDataListener, DocumentListener {
 	
 	public enum ExportStyle {TEXMAKER, TEXSTUDIO};
+	public enum ImportStyle {TEXMAKER, TEXSTUDIO};
 	
 	private View view;
 	private ExportStyle exportStyle;
+	private ImportStyle importStyle;
 	private final FileHandlerTexmaker texmaker;
 	private final FileHandlerTexstudio texstudio;
 	
 	public Controller() {
 		this.view = new View(this);
 		this.exportStyle = Controller.ExportStyle.TEXMAKER;
+		this.importStyle = Controller.ImportStyle.TEXMAKER;
 		this.texmaker = new FileHandlerTexmaker();
 		this.texstudio = new FileHandlerTexstudio();
 	}
@@ -68,6 +71,14 @@ public class Controller implements ActionListener, ListSelectionListener, ListDa
 			} else if (whichButton.equals("Large")) {
 				this.view.resize(View.Size.LARGE);
 			}
+		}else if (actionCommand.contains("importstyle/")) {
+			String whichButton = actionCommand.substring(
+					actionCommand.indexOf("/") + 1, actionCommand.length());
+			if (whichButton.equals("Texmaker ini file")) {
+				this.importStyle = Controller.ImportStyle.TEXMAKER;
+			} else if (whichButton.equals("Texstudio cwl file")) {
+				this.importStyle = Controller.ImportStyle.TEXSTUDIO;
+			}
 		} else if(actionCommand.contains("exportstyle/")) {
 			String whichButton = actionCommand.substring(
 					actionCommand.indexOf("/") + 1, actionCommand.length());
@@ -81,9 +92,19 @@ public class Controller implements ActionListener, ListSelectionListener, ListDa
 			if (file != null) {
 				if (file.exists()) {
 					if (file.canRead()) {
+						List<String> existingCommands = new ArrayList<String>();
 						try {
-							FileHandlerTexmaker texmaker = new FileHandlerTexmaker();
-							List<String> existingCommands = texmaker.readFile(file);
+							switch (this.importStyle) {
+							case TEXMAKER:
+								existingCommands = this.texmaker.readFile(file);
+								break;
+							case TEXSTUDIO:
+								existingCommands = this.texstudio.readFile(file);
+								break;
+							default:
+								System.err.println("Unsupported Option!");
+								break;
+							}
 							Collections.sort(existingCommands);
 							new AddCommandDialog(this.view, existingCommands);
 						} catch (IOException e1) {
@@ -98,6 +119,7 @@ public class Controller implements ActionListener, ListSelectionListener, ListDa
 				}
 			} else {
 				/* user aborted action - do nothing */
+				new AddCommandDialog(this.view, new ArrayList<String>());
 			}
 		} else if (actionCommand == View.SAVE_NAME) {
 			File file = this.view.createSaveFileDialog();
@@ -109,10 +131,13 @@ public class Controller implements ActionListener, ListSelectionListener, ListDa
 							switch (this.exportStyle) {
 							case TEXMAKER:
 								this.texmaker.writeFile(file, this.view.getCommands());
+								break;
 							case TEXSTUDIO:
 								this.texstudio.writeFile(file, this.view.getCommands());
+								break;
 							default:
 								System.err.println("Unsupported Option");
+								break;
 							}
 						} catch (IOException ioe) {
 							ioe.printStackTrace();

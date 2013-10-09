@@ -13,7 +13,6 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 
-import javax.net.ssl.ExtendedSSLSession;
 import javax.swing.ButtonGroup;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -31,7 +30,6 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class View extends JFrame {
 	

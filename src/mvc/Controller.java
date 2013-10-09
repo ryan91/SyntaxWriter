@@ -1,5 +1,6 @@
 package mvc;
 
+import io.FileHandlerCls;
 import io.FileHandlerTexmaker;
 import io.FileHandlerTexstudio;
 
@@ -23,14 +24,15 @@ import javax.swing.event.ListSelectionListener;
 
 public class Controller implements ActionListener, ListSelectionListener, ListDataListener, DocumentListener {
 	
-	public enum ExportStyle {TEXMAKER, TEXSTUDIO};
-	public enum ImportStyle {TEXMAKER, TEXSTUDIO};
+	public enum ExportStyle {TEXMAKER, TEXSTUDIO, LATEX};
+	public enum ImportStyle {TEXMAKER, TEXSTUDIO, LATEX};
 	
 	private View view;
 	private ExportStyle exportStyle;
 	private ImportStyle importStyle;
 	private final FileHandlerTexmaker texmaker;
 	private final FileHandlerTexstudio texstudio;
+	private final FileHandlerCls latex;
 	
 	public Controller() {
 		this.view = new View(this);
@@ -38,6 +40,7 @@ public class Controller implements ActionListener, ListSelectionListener, ListDa
 		this.importStyle = Controller.ImportStyle.TEXMAKER;
 		this.texmaker = new FileHandlerTexmaker();
 		this.texstudio = new FileHandlerTexstudio();
+		this.latex = new FileHandlerCls();
 	}
 	
 	public View getView() {
@@ -78,6 +81,8 @@ public class Controller implements ActionListener, ListSelectionListener, ListDa
 				this.importStyle = Controller.ImportStyle.TEXMAKER;
 			} else if (whichButton.equals("Texstudio cwl file")) {
 				this.importStyle = Controller.ImportStyle.TEXSTUDIO;
+			} else if (whichButton.equals("LaTeX class cls file")) {
+				this.importStyle = Controller.ImportStyle.LATEX;
 			}
 		} else if(actionCommand.contains("exportstyle/")) {
 			String whichButton = actionCommand.substring(
@@ -86,6 +91,8 @@ public class Controller implements ActionListener, ListSelectionListener, ListDa
 				this.exportStyle = Controller.ExportStyle.TEXMAKER;
 			} else if (whichButton.equals("Texstudio cwl file")) {
 				this.exportStyle = Controller.ExportStyle.TEXSTUDIO;
+			} else if (whichButton.equals("LaTeX class cls file")) {
+				this.exportStyle = Controller.ExportStyle.LATEX;
 			}
 		} else if (actionCommand == View.OPEN_NAME) {
 			File file = this.view.createOpenFileDialog();
@@ -100,6 +107,9 @@ public class Controller implements ActionListener, ListSelectionListener, ListDa
 								break;
 							case TEXSTUDIO:
 								existingCommands = this.texstudio.readFile(file);
+								break;
+							case LATEX:
+								existingCommands = this.latex.readFile(file);
 								break;
 							default:
 								System.err.println("Unsupported Option!");
@@ -122,6 +132,13 @@ public class Controller implements ActionListener, ListSelectionListener, ListDa
 				new AddCommandDialog(this.view, new ArrayList<String>());
 			}
 		} else if (actionCommand == View.SAVE_NAME) {
+			// TODO delete this passage after LaTeX writer implementation
+			if (this.exportStyle == ExportStyle.LATEX) {
+				JOptionPane.showMessageDialog(this.view,
+						"This feature is unfortunately not provided yet",
+						"Unsupported Feature", JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
 			File file = this.view.createSaveFileDialog();
 			if (file != null) {
 				if (file.exists()) {
@@ -135,6 +152,8 @@ public class Controller implements ActionListener, ListSelectionListener, ListDa
 							case TEXSTUDIO:
 								this.texstudio.writeFile(file, this.view.getCommands());
 								break;
+							case LATEX:
+								// TODO implement class writer
 							default:
 								System.err.println("Unsupported Option");
 								break;

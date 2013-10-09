@@ -95,7 +95,7 @@ public class View extends JFrame {
 		menuFactroy.addMenuItem("File", saveButton);
 		menuFactroy.addSeparator("File");
 		String[] exportStyles = new String[] { "Texmaker ini file",
-				"Texstudio cwl file" };
+				"Texstudio cwl file", "LaTeX class cls file" };
 		menuFactroy.addSubMenu("File", "Import from...");
 		ButtonGroup importButtons = menuFactroy.createRadioButtonGroup(
 				exportStyles, "importstyle", exportStyles[0], this.controller);

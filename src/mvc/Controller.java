@@ -129,7 +129,6 @@ public class Controller implements ActionListener, ListSelectionListener, ListDa
 				}
 			} else {
 				/* user aborted action - do nothing */
-				new AddCommandDialog(this.view, new ArrayList<String>());
 			}
 		} else if (actionCommand == View.SAVE_NAME) {
 			// TODO delete this passage after LaTeX writer implementation
